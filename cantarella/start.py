@@ -251,7 +251,7 @@ async def send_start(client: Client, message: Message):
         ],
         [
             InlineKeyboardButton('📢 Channels', url="https://t.me/TeamCinderella"),
-            InlineKeyboardButton('👨‍💻 Developers', callback_data="dev_info")
+            InlineKeyboardButton('👨‍💻 Developers', url="https://t.me/SmartBoy_ApnaMS")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(buttons)
@@ -561,7 +561,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             ],
             [
                 InlineKeyboardButton('📢 Channels', url="https://t.me/TeamCinderella"),
-                InlineKeyboardButton('👨‍💻 Developers', callback_data="dev_info")
+                InlineKeyboardButton('👨‍💻 Developers', url="https://t.me/SmartBoy_ApnaMS")
             ]
         ]
         await client.edit_message_media(
