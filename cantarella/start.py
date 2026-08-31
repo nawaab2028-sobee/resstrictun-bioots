@@ -549,7 +549,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
             photo_url = response.json()["url"]
         except Exception as e:
             logger.error(f"Failed to fetch image from API: {e}")
-            photo_url = "https://i.postimg.cc/cC7txyhz/15.png"
+            photo_url = "https://graph.org/file/e2da63735f5a0c0110538-2001962c850d6624c4.jpg"
         buttons = [
             [
                 InlineKeyboardButton("💎 Buy Premium", callback_data="buy_premium"),
@@ -560,7 +560,7 @@ async def button_callbacks(client: Client, callback_query: CallbackQuery):
                 InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
             ],
             [
-                InlineKeyboardButton('📢 Channels', callback_data="channels_info"),
+                InlineKeyboardButton('📢 Channels', url="https://t.me/TeamCinderella"),
                 InlineKeyboardButton('👨‍💻 Developers', callback_data="dev_info")
             ]
         ]
