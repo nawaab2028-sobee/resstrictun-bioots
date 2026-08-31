@@ -14,7 +14,7 @@ app = Flask(__name__)
 
 @app.route("/", methods=["GET"])
 def health():
-    return Response("OK", status=200)
+    return Response("i love you ❤️", status=200)
 
 def _run():
     port = int(os.environ.get("PORT", 8080))
