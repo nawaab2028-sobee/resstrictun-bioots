@@ -239,7 +239,7 @@ async def send_start(client: Client, message: Message):
         photo_url = response.json()["url"]
     except Exception as e:
         logger.error(f"Failed to fetch image from API: {e}")
-        photo_url = "https://i.postimg.cc/kX9tjGXP/16.png"
+        photo_url = "https://graph.org/file/96f7e50b37c6bd4dc5071-5eadeaf54110b8c34a.jpg"
     buttons = [
         [
             InlineKeyboardButton("💎 Buy Premium", callback_data="buy_premium"),
@@ -250,7 +250,7 @@ async def send_start(client: Client, message: Message):
             InlineKeyboardButton("ℹ️ About Bot", callback_data="about_btn")
         ],
         [
-            InlineKeyboardButton('📢 Channels', callback_data="channels_info"),
+            InlineKeyboardButton('📢 Channels', url="https://t.me/TeamCinderella"),
             InlineKeyboardButton('👨‍💻 Developers', callback_data="dev_info")
         ]
     ]
