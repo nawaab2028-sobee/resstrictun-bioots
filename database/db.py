@@ -1,6 +1,6 @@
 import motor.motor_asyncio
 import datetime
-from config import DB_NAME, DB_URI
+from config import DB_NAME, DB_URI, ADMINS
 from logger import LOGGER
 logger = LOGGER(__name__)
 class Database:
@@ -81,6 +81,51 @@ class Database:
         return None
     async def get_premium_users(self):
         return self.col.find({'is_premium': True})
+    # Auth Support (owner-granted temporary unlimited access)
+    async def add_auth(self, id, expiry_datetime):
+        # Owner-granted auth: also reset limits so it kicks in immediately
+        await self.col.update_one(
+            {'id': int(id)},
+            {'$set': {
+                'is_auth': True,
+                'auth_expiry': expiry_datetime,
+                'daily_usage': 0,
+                'limit_reset_time': None
+            }},
+            upsert=True
+        )
+        logger.info(f"User {id} granted auth until {expiry_datetime}")
+    async def remove_auth(self, id):
+        await self.col.update_one({'id': int(id)}, {'$set': {'is_auth': False, 'auth_expiry': None}})
+        logger.info(f"User {id} auth access removed")
+    async def check_auth(self, id):
+        """
+        Returns True if the user has active (non-expired) owner-granted auth.
+        Auto-clears auth if the expiry time has passed.
+        """
+        user = await self.col.find_one({'id': int(id)})
+        if not user or not user.get('is_auth'):
+            return False
+        expiry = user.get('auth_expiry')
+        if expiry is None:
+            return True  # Permanent auth
+        if datetime.datetime.now() >= expiry:
+            await self.col.update_one({'id': int(id)}, {'$set': {'is_auth': False, 'auth_expiry': None}})
+            return False
+        return True
+    async def has_unlimited_access(self, id):
+        """
+        Single source of truth for 'no restrictions' access.
+        True for: hardcoded config admins/owner, active paid premium,
+        or active owner-granted auth.
+        """
+        if int(id) in ADMINS:
+            return True
+        if await self.check_premium(id):
+            return True
+        if await self.check_auth(id):
+            return True
+        return False
     # Ban Support
     async def ban_user(self, id):
         await self.col.update_one({'id': int(id)}, {'$set': {'is_banned': True}})
@@ -127,6 +172,9 @@ class Database:
         Checks if a user has hit their daily limit.
         Returns: True if BLOCKED (limit reached), False if ALLOWED.
         """
+        # 0. Unlimited access check: config admins/owner, premium, or owner-granted auth
+        if await self.has_unlimited_access(id):
+            return False
         user = await self.col.find_one({'id': int(id)})
         if not user:
             return False # Should be added via add_user, but safe fallback
@@ -156,10 +204,11 @@ class Database:
         Increments usage count.
         If it's the first save of the cycle, sets the 24h timer.
         """
+        # If unlimited (config admin/owner, premium, or active auth), skip usage tracking
+        if await self.has_unlimited_access(id):
+            return
         user = await self.col.find_one({'id': int(id)})
-       
-        # If premium, do nothing or track stats if you want (currently strictly for limit logic)
-        if user.get('is_premium'):
+        if not user:
             return
         now = datetime.datetime.now()
         reset_time = user.get('limit_reset_time')
