@@ -6,7 +6,7 @@ from pyrogram.types import (
     InlineKeyboardButton
 )
 from database.db import db
-from config import ADMINS
+from config import ADMINS, OWNER_ID
 from datetime import date, datetime, timedelta
 from logger import LOGGER
 
@@ -185,6 +185,62 @@ async def remove_premium_admin(client: Client, message: Message):
         await message.reply_text(f"✅ Premium removed from <code>{user_id}</code>.")
     except Exception as e:
         await message.reply_text(f"Error: {e}")
+
+# ======================================================
+# OWNER COMMANDS - Grant/Revoke Temporary Auth Access
+# ======================================================
+
+@Client.on_message(filters.command("addauth") & filters.user(OWNER_ID) & filters.private)
+async def add_auth_cmd(client: Client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply_text(
+            "<b>⚠️ Owner Usage:</b>\n"
+            "<code>/addauth &lt;user_id&gt; [days]</code>\n\n"
+            "<i>Days defaults to 7 if not given. Grants the user unlimited "
+            "access (no daily limit, no size limit) until it expires.</i>",
+            parse_mode=enums.ParseMode.HTML
+        )
+
+    try:
+        user_id = int(message.command[1])
+        days = int(message.command[2]) if len(message.command) > 2 else 7
+
+        if not await db.is_user_exist(user_id):
+            await db.add_user(user_id, str(user_id))
+
+        expiry_dt = datetime.now() + timedelta(days=days)
+        await db.add_auth(user_id, expiry_dt)
+
+        await message.reply_text(
+            f"<b>✅ Auth Access Granted</b>\n\n"
+            f"<b>User ID:</b> <code>{user_id}</code>\n"
+            f"<b>Duration:</b> {days} day(s)\n"
+            f"<b>Expires:</b> <code>{expiry_dt.strftime('%Y-%m-%d %H:%M:%S')}</code>",
+            parse_mode=enums.ParseMode.HTML
+        )
+    except ValueError:
+        await message.reply_text("❌ <b>Error:</b> User ID and days must be numbers.", parse_mode=enums.ParseMode.HTML)
+    except Exception as e:
+        await message.reply_text(f"❌ <b>Error:</b> {e}", parse_mode=enums.ParseMode.HTML)
+
+@Client.on_message(filters.command("rmauth") & filters.user(OWNER_ID) & filters.private)
+async def remove_auth_cmd(client: Client, message: Message):
+    if len(message.command) < 2:
+        return await message.reply_text(
+            "<b>⚠️ Usage:</b> <code>/rmauth &lt;user_id&gt;</code>",
+            parse_mode=enums.ParseMode.HTML
+        )
+    try:
+        user_id = int(message.command[1])
+        await db.remove_auth(user_id)
+        await message.reply_text(
+            f"<b>✅ Auth Access Removed</b>\n\n<b>User ID:</b> <code>{user_id}</code>",
+            parse_mode=enums.ParseMode.HTML
+        )
+    except ValueError:
+        await message.reply_text("❌ <b>Error:</b> User ID must be a number.", parse_mode=enums.ParseMode.HTML)
+    except Exception as e:
+        await message.reply_text(f"❌ <b>Error:</b> {e}", parse_mode=enums.ParseMode.HTML)
 
 # ======================================================
 # CALLBACK QUERIES

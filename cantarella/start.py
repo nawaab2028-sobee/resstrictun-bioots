@@ -412,7 +412,7 @@ async def handle_restricted_content(client: Client, acc, message: Message, chat_
     elif msg_type == "Audio": file_size = msg.audio.file_size
    
     if file_size > FREE_LIMIT_SIZE:
-        if not await db.check_premium(message.from_user.id):
+        if not await db.has_unlimited_access(message.from_user.id):
             btn = InlineKeyboardMarkup([[InlineKeyboardButton("💎 Upgrade to Premium", callback_data="buy_premium")]])
             await client.send_message(
                 message.chat.id,
