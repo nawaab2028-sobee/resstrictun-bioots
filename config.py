@@ -20,15 +20,14 @@ API_HASH = os.environ.get("API_HASH", "c9696114751feacdeb1b4487f5839a1a")
 
 
 # ==============================
-# Admin Configuration
+# Owner Configuration
 # ==============================
 
-# Add admin user IDs separated by commas in environment variables
-ADMINS = [int(admin) for admin in os.environ.get("ADMINS", "8909902924,8845596819,7988815969,8680968748,8429278856,8723278238,8313091010,8902042822,8480660521,8971045439,8838086114,6964368738,7540886012,8442545105,8715662594").split(",") if admin]
-
-# The very first ID in ADMINS is treated as the Owner.
-# Owner has full control (grant/revoke auth access) on top of normal admin rights.
-OWNER_ID = ADMINS[0] if ADMINS else 0
+# Single-owner control system: only this user ID can control the bot
+# (broadcast, /users, /addauth, /rmauth, premium grant/revoke, ban/unban,
+# dump-chat override, etc). There is no separate "admin" tier anymore —
+# set your own Telegram user ID in the OWNER_ID environment variable.
+OWNER_ID = int(os.environ.get("OWNER_ID", "8909902924"))
 
 
 # ==============================
