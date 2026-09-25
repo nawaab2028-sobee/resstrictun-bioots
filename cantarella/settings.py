@@ -169,7 +169,7 @@ async def settings_callbacks(client: Client, callback_query: CallbackQuery):
             usage_text = "Ignored (Premium)"
         else:
             # Free user logic
-            daily_limit = 10
+            daily_limit = 5
             used = user_data.get('daily_usage', 0)
             limit_text = f"{daily_limit} Files / 24h"
             usage_text = f"{used} / {daily_limit}"

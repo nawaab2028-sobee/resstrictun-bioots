@@ -6,7 +6,7 @@ from pyrogram.types import (
     InlineKeyboardButton
 )
 from database.db import db
-from config import ADMINS, OWNER_ID
+from config import OWNER_ID
 from datetime import date, datetime, timedelta
 from logger import LOGGER
 
@@ -64,7 +64,7 @@ async def my_plan(client: Client, message: Message):
         )
     else:
         # Free Logic
-        daily_limit = 10
+        daily_limit = 5
         tokens_left = max(0, daily_limit - daily_usage)
         
         plan_text = (
@@ -136,7 +136,7 @@ async def show_premium_plans(message_or_query):
 # ADMIN COMMANDS - Secure & Detailed
 # ======================================================
 
-@Client.on_message(filters.command("add_premium") & filters.user(ADMINS) & filters.private)
+@Client.on_message(filters.command("add_premium") & filters.user(OWNER_ID) & filters.private)
 async def add_premium_admin(client: Client, message: Message):
     if len(message.command) < 3:
         return await message.reply_text(
@@ -172,7 +172,7 @@ async def add_premium_admin(client: Client, message: Message):
     except Exception as e:
         await message.reply_text(f"❌ <b>Error:</b> {e}", parse_mode=enums.ParseMode.HTML)
 
-@Client.on_message(filters.command("remove_premium") & filters.user(ADMINS) & filters.private)
+@Client.on_message(filters.command("remove_premium") & filters.user(OWNER_ID) & filters.private)
 async def remove_premium_admin(client: Client, message: Message):
     if len(message.command) < 2:
         return await message.reply_text(

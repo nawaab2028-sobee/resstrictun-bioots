@@ -19,7 +19,7 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 • Custom captions with {filename} & {size} placeholders
 • Custom thumbnails
 • Auto-forward to your dump chat
-• Daily token system (10 saves/day for free users)
+• Daily token system (5 saves/day for free users)
 • Premium = unlimited everything ♾️
 </blockquote>
 
@@ -50,7 +50,7 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 <blockquote><b>/thumb_mode</b> — Check thumbnail status</blockquote>
 
 <b>💡 Tips</b>
-• Free users: 10 saves/day + 5 files per batch
+• Free users: 5 saves/day + 5 files per batch
 • Premium users: Unlimited saves & batch size
 • Contact @cantarellabots for support or premium purchase
 

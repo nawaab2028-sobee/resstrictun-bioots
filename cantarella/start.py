@@ -1,6 +1,7 @@
 # Developed by: LastPerson07 × cantarella
 # Telegram: @cantarellabots | @THEUPDATEDGUYS
 import os
+import re
 import asyncio
 import random
 import time
@@ -21,7 +22,7 @@ from logger import LOGGER
 logger = LOGGER(__name__)
 SUBSCRIPTION = os.environ.get('SUBSCRIPTION', 'https://graph.org/file/242b7f1b52743938d81f1.jpg')
 FREE_LIMIT_SIZE = 2 * 1024 * 1024 * 1024
-FREE_LIMIT_DAILY = 10
+FREE_LIMIT_DAILY = 5
 UPI_ID = os.environ.get("UPI_ID", "")
 QR_CODE = os.environ.get("QR_CODE", "")
 REACTIONS = [
@@ -71,7 +72,7 @@ class script(object):
 • Initiate with <code>/batch</code> for multiple files.
 • Follow interactive prompts for seamless processing.
 <blockquote><b>🛑 Free User Limitations:</b></blockquote>
-• <b>Daily Quota:</b> 10 Files / 24 Hours
+• <b>Daily Quota:</b> 5 Files / 24 Hours
 • <b>File Size Cap:</b> 2GB Maximum
 <blockquote><b>💎 Premium Membership Benefits:</b></blockquote>
 • Unlimited Downloads & No Restrictions.
@@ -117,7 +118,7 @@ class script(object):
 """
     CAPTION = """<b><a href="https://t.me/TeamCinderella"></a></b>\n\n<b>⚜️ Powered By : <a href="https://t.me/SmartBoy_ApnaMS">THE UPDATED GUYS 😎</a></b>"""
     LIMIT_REACHED = """<b>🚫 Daily Limit Exceeded</b>
-<b>Your 10 free saves for today have been used.</b>
+<b>Your 5 free saves for today have been used.</b>
 <i>Quota resets automatically after 24 hours from first download.</i>
 <blockquote><b>🔓 Upgrade to Premium for Unlimited Access!</b></blockquote>
 Remove all restrictions and enjoy seamless downloading.
@@ -156,6 +157,45 @@ def get_message_type(msg):
     if getattr(msg, 'audio', None): return "Audio"
     if getattr(msg, 'text', None): return "Text"
     return None
+# --------------------------------------------------------
+# Robust Telegram link parser (public / private / batch)
+# Handles links even when surrounded by extra text/spaces,
+# a trailing "?single", and BOTH private link formats:
+#   https://t.me/c/<channel_id>/<msg_id>
+#   https://t.me/c/<channel_id>/<topic_id>/<msg_id>  (forum/topic groups)
+# The old code split on "/" by fixed index, which broke (and got
+# silently ignored) the moment the link had extra text around it
+# or wasn't in the exact expected shape.
+# --------------------------------------------------------
+TME_PRIVATE_RE = re.compile(r"https?://t\.me/c/(\d+)(?:/\d+)?/(\d+)(?:-(\d+))?")
+TME_BATCH_RE = re.compile(r"https?://t\.me/b/([A-Za-z0-9_]+)/(\d+)(?:-(\d+))?")
+TME_PUBLIC_RE = re.compile(r"https?://t\.me/([A-Za-z0-9_]+)/(\d+)(?:-(\d+))?")
+def parse_telegram_link(text):
+    """
+    Finds a Telegram post link anywhere inside `text` and returns
+    (kind, target, from_id, to_id):
+      kind:   "private" | "batch" | "public" | None
+      target: chat_id (int, already "-100"-prefixed) for private,
+              or username (str) for public/batch
+    Returns (None, None, None, None) if no recognizable link is found.
+    """
+    m = TME_PRIVATE_RE.search(text)
+    if m:
+        channel_id = int("-100" + m.group(1))
+        from_id = int(m.group(2))
+        to_id = int(m.group(3)) if m.group(3) else from_id
+        return "private", channel_id, from_id, to_id
+    m = TME_BATCH_RE.search(text)
+    if m:
+        from_id = int(m.group(2))
+        to_id = int(m.group(3)) if m.group(3) else from_id
+        return "batch", m.group(1), from_id, to_id
+    m = TME_PUBLIC_RE.search(text)
+    if m and m.group(1) not in ("c", "b"):
+        from_id = int(m.group(2))
+        to_id = int(m.group(3)) if m.group(3) else from_id
+        return "public", m.group(1), from_id, to_id
+    return None, None, None, None
 async def downstatus(client, statusfile, message, chat):
     while not os.path.exists(statusfile):
         await asyncio.sleep(3)
@@ -330,28 +370,29 @@ async def save(client: Client, message: Message):
        
         if batch_temp.IS_BATCH.get(message.from_user.id) == False:
             return await message.reply_text("<b>⚠️ A Task is Currently Processing.</b>\n<i>Please wait for completion or use /cancel to stop.</i>", parse_mode=enums.ParseMode.HTML)
-        datas = message.text.split("/")
-        temp = datas[-1].replace("?single", "").split("-")
-        fromID = int(temp[0].strip())
-        try:
-            toID = int(temp[1].strip())
-        except:
-            toID = fromID
+        kind, target, fromID, toID = parse_telegram_link(message.text)
+        if kind is None:
+            batch_temp.IS_BATCH[message.from_user.id] = True
+            return await message.reply_text(
+                "<b>⚠️ Link Not Recognized</b>\n\n"
+                "<i>Please send a valid Telegram post link, e.g.</i>\n"
+                "<code>https://t.me/channel/123</code>\n"
+                "<code>https://t.me/c/1234567890/123</code>",
+                parse_mode=enums.ParseMode.HTML
+            )
         batch_temp.IS_BATCH[message.from_user.id] = False
-        is_private_link = "https://t.me/c/" in message.text
-        is_batch = "https://t.me/b/" in message.text
-        is_public_link = not is_private_link and not is_batch
+        is_private_link = kind == "private"
+        is_public_link = kind == "public"
         for msgid in range(fromID, toID + 1):
            
             if batch_temp.IS_BATCH.get(message.from_user.id):
                 break
            
             if is_public_link:
-                username = datas[3]
                 try:
                     await client.copy_message(
                         chat_id=message.chat.id,
-                        from_chat_id=username,
+                        from_chat_id=target,
                         message_id=msgid,
                         reply_to_message_id=message.id
                     )
@@ -377,29 +418,45 @@ async def save(client: Client, message: Message):
                     api_hash=API_HASH,
                     api_id=API_ID,
                     in_memory=True,
-                    max_concurrent_transmissions=10
+                    max_concurrent_transmissions=20  # Turbo: more parallel chunks for private-channel down/upload
                 )
                 await acc.connect()
             except Exception as e:
                 batch_temp.IS_BATCH[message.from_user.id] = True
                 return await message.reply(f"<b>❌ Authentication Failed</b>\n\n<i>Your session may have expired. Please /logout and /login again.</i>\n<code>{e}</code>", parse_mode=enums.ParseMode.HTML)
-            if is_private_link:
-                chatid = int("-100" + datas[4])
-                await handle_restricted_content(client, acc, message, chatid, msgid)
-            elif is_batch:
-                username = datas[4]
-                await handle_restricted_content(client, acc, message, username, msgid)
-            else:
-                username = datas[3]
-                await handle_restricted_content(client, acc, message, username, msgid)
-            await asyncio.sleep(2)
+            await handle_restricted_content(client, acc, message, target, msgid)
+            try:
+                await acc.disconnect()
+            except Exception:
+                pass
+            await asyncio.sleep(1)  # Turbo: shorter gap between consecutive saves
         batch_temp.IS_BATCH[message.from_user.id] = True
 async def handle_restricted_content(client: Client, acc, message: Message, chat_target, msgid):
     try:
         msg: Message = await acc.get_messages(chat_target, msgid)
     except Exception as e:
-        logger.error(f"Error fetching message: {e}")
-        return
+        # Turbo/private-channel fix: a fresh userbot session often hasn't
+        # cached this chat's peer yet, which used to fail silently
+        # (PEER_ID_INVALID) and make the bot look like it "ignored" the
+        # link. Force-resolve the chat once, then retry before giving up.
+        try:
+            await acc.get_chat(chat_target)
+            msg = await acc.get_messages(chat_target, msgid)
+        except Exception as e2:
+            logger.error(f"Error fetching message: {e2}")
+            try:
+                await client.send_message(
+                    message.chat.id,
+                    "<b>❌ Unable to Fetch This Message</b>\n\n"
+                    "<i>Make sure your logged-in account (/login) is a member "
+                    "of this private channel/group and the link is correct.</i>\n"
+                    f"<code>{e2}</code>",
+                    reply_to_message_id=message.id,
+                    parse_mode=enums.ParseMode.HTML
+                )
+            except Exception:
+                pass
+            return
     if msg.empty:
         return
    

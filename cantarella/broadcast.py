@@ -7,7 +7,7 @@
 from pyrogram.errors import InputUserDeactivated, UserNotParticipant, FloodWait, UserIsBlocked, PeerIdInvalid
 from database.db import db
 from pyrogram import Client, filters
-from config import ADMINS
+from config import OWNER_ID
 import asyncio
 import datetime
 import time
@@ -44,7 +44,7 @@ async def broadcast_messages(user_id, message):
 # ---------------------------------------------------
 # /broadcast command
 # ---------------------------------------------------
-@Client.on_message(filters.command("broadcast") & filters.user(ADMINS))
+@Client.on_message(filters.command("broadcast") & filters.user(OWNER_ID))
 async def broadcast_command(bot: Client, message: Message):
     b_msg = message.reply_to_message
     if not b_msg:
@@ -121,7 +121,7 @@ async def broadcast_command(bot: Client, message: Message):
 # ---------------------------------------------------
 # /users Command (Standalone + JSON export)
 # ---------------------------------------------------
-@Client.on_message(filters.command("users") & filters.user(ADMINS))
+@Client.on_message(filters.command("users") & filters.user(OWNER_ID))
 async def users_count(bot: Client, message: Message):
     msg = await message.reply_text("⏳ <b>__Gathering User Data...__</b>", quote=True)
     try:
