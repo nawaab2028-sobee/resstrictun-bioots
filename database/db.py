@@ -1,6 +1,6 @@
 import motor.motor_asyncio
 import datetime
-from config import DB_NAME, DB_URI, ADMINS
+from config import DB_NAME, DB_URI, OWNER_ID
 from logger import LOGGER
 logger = LOGGER(__name__)
 class Database:
@@ -116,10 +116,10 @@ class Database:
     async def has_unlimited_access(self, id):
         """
         Single source of truth for 'no restrictions' access.
-        True for: hardcoded config admins/owner, active paid premium,
+        True for: the bot OWNER, active paid premium,
         or active owner-granted auth.
         """
-        if int(id) in ADMINS:
+        if int(id) == OWNER_ID:
             return True
         if await self.check_premium(id):
             return True
@@ -195,7 +195,7 @@ class Database:
             return False # Allowed (count is 0)
         # 3. Check Count
         usage = user.get('daily_usage', 0)
-        if usage >= 10:
+        if usage >= 5:
             return True # Blocked
        
         return False # Allowed
