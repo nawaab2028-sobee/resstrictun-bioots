@@ -34,7 +34,7 @@ OWNER_ID = int(os.environ.get("OWNER_ID", "8909902924"))
 # Database Configuration
 # ==============================
 
-DB_URI = os.environ.get("DB_URI", "mongodb+srv://carrombro47_db_user:St7FJBRs0pPYYmt3@cluster0.fp3wrat.mongodb.net/?appName=Cluster0")
+DB_URI = os.environ.get("DB_URI", "mongodb+srv://msbro1099_db_user:msbro786178@cluster0.mrfafaz.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0")
 DB_NAME = os.environ.get("DB_NAME", "SaveRestricted2")
 
 
