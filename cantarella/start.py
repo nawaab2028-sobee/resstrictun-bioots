@@ -54,9 +54,9 @@ class script(object):
 <b>🤖 I am <a href=https://t.me/{}>{}</a></b>
 <i>Your Professional Restricted Content Saver Bot.</i>
 <blockquote><b>🚀 System Status: 🟢 Online</b>
-<b>⚡ Performance: 10x High-Speed Processing</b>
+<b>⚡ Performance: 20x High-Speed Processing</b>
 <b>🔐 Security: End-to-End Encrypted</b>
-<b>📊 Uptime: 99.9% Guaranteed</b></blockquote>
+<b>📊 Uptime: 99.99% Guaranteed</b></blockquote>
 <b>👇 Select an Option Below to Get Started:</b>
 """
     HELP_TXT = """<b>📚 Comprehensive Help & User Guide</b>
