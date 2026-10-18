@@ -67,8 +67,8 @@ FORCE_SUB_SWEEP_SECONDS = int(os.environ.get("FORCE_SUB_SWEEP_SECONDS", "60"))
 #   chat_id -> the channel's chat id (the "-100..." one). The bot must be ADMIN in that channel.
 # NOTE: a channel whose chat_id is still the "-100XXXXXXXXXX" placeholder is ignored.
 FORCE_SUB_CHANNELS = [
-    {"title": "Channel 1", "link": "https://t.me/your_channel_1", "chat_id": "-100XXXXXXXXXX"},
-    {"title": "Channel 2", "link": "https://t.me/your_channel_2", "chat_id": "-100XXXXXXXXXX"},
+    {"title": "📢 Update Channel", "link": "https://t.me/teamcinderella", "chat_id": "-1003330631655"},
+    {"title": "💸VIP Channel", "link": "💸", "chat_id": "-1002258155184"},
 ]
 
 
