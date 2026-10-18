@@ -107,7 +107,9 @@ async def cancel_login(client: Client, message: Message):
             reply_markup=remove_keyboard
         )
     else:
-        pass
+        # No login in progress: do NOT swallow the command here. Let the next handler
+        # (/cancel in start.py) cancel a running batch download instead.
+        message.continue_propagation()
 
 async def check_login_state(_, __, message):
     return message.from_user.id in LOGIN_STATE
