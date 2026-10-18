@@ -14,7 +14,7 @@ from pyrogram.errors import (
     FloodWait, UserIsBlocked, InputUserDeactivated, UserAlreadyParticipant,
     InviteHashExpired, UsernameNotOccupied, AuthKeyUnregistered, UserDeactivated, UserDeactivatedBan
 )
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, InputMediaPhoto
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, Message, CallbackQuery, InputMediaPhoto, ReplyKeyboardRemove
 from config import API_ID, API_HASH, ERROR_MESSAGE
 from database.db import db
 import math
@@ -54,9 +54,9 @@ class script(object):
 <b>🤖 I am <a href=https://t.me/{}>{}</a></b>
 <i>Your Professional Restricted Content Saver Bot.</i>
 <blockquote><b>🚀 System Status: 🟢 Online</b>
-<b>⚡ Performance: 20x High-Speed Processing</b>
+<b>⚡ Performance: 10x High-Speed Processing</b>
 <b>🔐 Security: End-to-End Encrypted</b>
-<b>📊 Uptime: 99.99% Guaranteed</b></blockquote>
+<b>📊 Uptime: 99.9% Guaranteed</b></blockquote>
 <b>👇 Select an Option Below to Get Started:</b>
 """
     HELP_TXT = """<b>📚 Comprehensive Help & User Guide</b>
@@ -326,10 +326,17 @@ async def send_plan(client: Client, message: Message):
         reply_markup=InlineKeyboardMarkup(buttons),
         parse_mode=enums.ParseMode.HTML
     )
-@Client.on_message(filters.command(["cancel"]))
+# Handles /cancel AND the "❌ Cancel" keyboard button when no login is in progress
+# (e.g. the keyboard stayed on screen after a restart). Login cancelling itself lives in session.py.
+@Client.on_message(filters.command(["cancel"]) | (filters.private & filters.regex(r"(?i)^❌\s*cancel$")))
 async def send_cancel(client: Client, message: Message):
-    batch_temp.IS_BATCH[message.from_user.id] = True
-    await message.reply_text("❌ Batch Process Cancelled Successfully.")
+    user_id = message.from_user.id
+    was_running = batch_temp.IS_BATCH.get(user_id) == False
+    batch_temp.IS_BATCH[user_id] = True
+    await message.reply_text(
+        "❌ Batch Process Cancelled Successfully." if was_running else "ℹ️ Nothing to cancel right now.",
+        reply_markup=ReplyKeyboardRemove()
+    )
 async def settings_panel(client, callback_query):
     """
     Renders the Settings Menu with professional layout.
