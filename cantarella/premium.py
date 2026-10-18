@@ -183,8 +183,9 @@ async def show_premium_plans(message_or_query):
         "• 👑 <b>Premium</b> Badge\n"
         "</blockquote>\n\n"
         "<b>💲 Pricing:</b>\n"
-        "• <b>1 Month:</b> ₹50 / $1\n"
-        "• <b>Lifetime:</b> ₹200 / $4\n\n"
+        "• <b>1 Week:</b> ₹50 / $0.5\n"
+        "• <b>1 Month:</b> ₹150 / $1.5\n\n"
+        "• <b>3 Month:</b> ₹300 / $3\n\n"
         "<i>Tap the button below to buy instantly.</i>"
     )
 
