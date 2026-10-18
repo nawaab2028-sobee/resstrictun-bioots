@@ -66,6 +66,7 @@ class Database:
             '$set': {
                 'is_premium': True,
                 'premium_expiry': expiry_date,
+                'premium_start': datetime.datetime.now(),
                 'daily_usage': 0,
                 'limit_reset_time': None
             }
@@ -89,6 +90,7 @@ class Database:
             {'$set': {
                 'is_auth': True,
                 'auth_expiry': expiry_datetime,
+                'auth_start': datetime.datetime.now(),
                 'daily_usage': 0,
                 'limit_reset_time': None
             }},
