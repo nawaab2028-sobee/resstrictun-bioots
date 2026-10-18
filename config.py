@@ -68,7 +68,7 @@ FORCE_SUB_SWEEP_SECONDS = int(os.environ.get("FORCE_SUB_SWEEP_SECONDS", "60"))
 # NOTE: a channel whose chat_id is still the "-100XXXXXXXXXX" placeholder is ignored.
 FORCE_SUB_CHANNELS = [
     {"title": "📢 Update Channel", "link": "https://t.me/teamcinderella", "chat_id": "-1003330631655"},
-    {"title": "💸VIP Channel", "link": "💸", "chat_id": "-1002258155184"},
+    {"title": "💸VIP Channel", "link": "https://t.me/+yMpFHjaghI1mOTFl", "chat_id": "-1002258155184"},
 ]
 
 
