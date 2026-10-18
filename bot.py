@@ -104,6 +104,13 @@ class Bot(Client):
 
         await self.set_bot_commands_list()
 
+        # 5. Force-subscribe background tasks (startup channel check + leave sweeper)
+        try:
+            from cantarella.forcesub import start_background
+            start_background(self)
+        except Exception as e:
+            logger.warning(f"Force-sub background start failed: {e}")
+
     async def stop(self, *args):
         try:
             await self.send_message(LOG_CHANNEL, "<b><i>❌ Bot is going Offline</i></b>")

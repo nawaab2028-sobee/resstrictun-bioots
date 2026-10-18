@@ -34,7 +34,7 @@ OWNER_ID = int(os.environ.get("OWNER_ID", "8909902924"))
 # Database Configuration
 # ==============================
 
-DB_URI = os.environ.get("DB_URI", "mongodb+srv://powerofsensei618_db_user:LuRAYxYPsif5ndvK@cluster0.rizt0nu.mongodb.net/")
+DB_URI = os.environ.get("DB_URI", "mongodb+srv://carrombro47_db_user:St7FJBRs0pPYYmt3@cluster0.fp3wrat.mongodb.net/?appName=Cluster0")
 DB_NAME = os.environ.get("DB_NAME", "SaveRestricted2")
 
 
@@ -44,6 +44,32 @@ DB_NAME = os.environ.get("DB_NAME", "SaveRestricted2")
 
 # Replace with your Telegram log channel ID (example: -1001234567890)
 LOG_CHANNEL = int(os.environ.get("LOG_CHANNEL", "-1004441195247"))
+
+
+# ==============================
+# Force Subscribe
+# ==============================
+
+# True  = every user must first join ALL the channels below to use the bot.
+# False = force subscribe is off (the bot works as before).
+FORCE_SUB_ENABLED = os.environ.get("FORCE_SUB_ENABLED", "True").lower() == "true"
+
+# True = the owner is exempt (the owner does not have to join).
+FORCE_SUB_EXEMPT_OWNER = os.environ.get("FORCE_SUB_EXEMPT_OWNER", "True").lower() == "true"
+
+# How often (in seconds) the bot re-checks saved members to catch users who left a channel
+# (backup for the instant leave detection). 0 = off.
+FORCE_SUB_SWEEP_SECONDS = int(os.environ.get("FORCE_SUB_SWEEP_SECONDS", "60"))
+
+# The channels. Every channel has 3 fields:
+#   title   -> name shown on the button / in messages
+#   link    -> channel link (fallback; the bot also creates personal invite links itself)
+#   chat_id -> the channel's chat id (the "-100..." one). The bot must be ADMIN in that channel.
+# NOTE: a channel whose chat_id is still the "-100XXXXXXXXXX" placeholder is ignored.
+FORCE_SUB_CHANNELS = [
+    {"title": "Channel 1", "link": "https://t.me/your_channel_1", "chat_id": "-100XXXXXXXXXX"},
+    {"title": "Channel 2", "link": "https://t.me/your_channel_2", "chat_id": "-100XXXXXXXXXX"},
+]
 
 
 # ==============================
