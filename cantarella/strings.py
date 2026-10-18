@@ -54,7 +54,7 @@ HELP_TXT = """<b>🚀 Welcome to cantarella Save Restricted Bot - Complete Guide
 • Premium users: Unlimited saves & batch size
 • Contact @cantarellabots for support or premium purchase
 
-<b>Thank you for using cantarella! ❤️</b>
+<b>Thank you for using! ❤️</b>
 """
 
 COMMANDS_TXT = """<b>📜 All Available Commands</b>
